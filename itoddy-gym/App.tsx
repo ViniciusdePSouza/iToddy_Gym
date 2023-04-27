@@ -11,6 +11,7 @@ import React from "react";
 import { Loading } from "./src/Components/Loading";
 
 import { THEME } from "./src/theme";
+import { SignIn } from "@screens/SignIn";
 
 export default function App() {
   const fontsLoaded = useFonts({ Roboto_400Regular, Roboto_700Bold });
@@ -24,7 +25,7 @@ export default function App() {
           translucent
         />
 
-        {!fontsLoaded ? <Text>Hello World!</Text> : <Loading/>}
+        {fontsLoaded ? <SignIn /> : <Loading/>}
     </NativeBaseProvider>
   );
 }

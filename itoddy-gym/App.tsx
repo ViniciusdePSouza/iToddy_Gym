@@ -14,7 +14,7 @@ import { THEME } from "./src/theme";
 import { SignIn } from "@screens/SignIn";
 
 export default function App() {
-  const fontsLoaded = useFonts({ Roboto_400Regular, Roboto_700Bold });
+  const [ fontsLoaded ] = useFonts({ Roboto_400Regular, Roboto_700Bold });
 
   return (
     <NativeBaseProvider theme={THEME}>

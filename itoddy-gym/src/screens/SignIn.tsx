@@ -37,7 +37,9 @@ export function SignIn() {
       />
       <Input placeholder="Senha" secureTextEntry />
 
-      <Button title="Acessar"/>
-    </VStack>
+      <Button title="Acessar" />
+      <Button title="Crie sua Conta" variant='outline' />
+    </VStack> 
+
   );
 }

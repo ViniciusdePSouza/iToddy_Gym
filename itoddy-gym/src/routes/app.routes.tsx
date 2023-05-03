@@ -32,20 +32,20 @@ export function AppRoutes() {
 
   return (
     <Navigator
-      screenOptions={{
-        tabBarShowLabel: false,
-        tabBarStyle: { backgroundColor: colors.gray },
-        tabBarActiveTintColor: colors.yellow[500],
-        tabBarInactiveTintColor: colors.gray[200],
-        tabBarStyle: { backgroundColor: colors.gray[600] },
+      labeled={false}
+      barStyle={{
+        backgroundColor: colors.gray[700],
       }}
+      shifting={false}
+      activeColor={colors.yellow[700]}
+      inactiveColor={colors.gray[200]}
     >
       <Screen
         name="home"
         component={Home}
         options={{
           tabBarIcon: ({ color }) => (
-            <HomeSvg fill={color} width={IconSize} height={IconSize} />
+            <HomeSvg fill={color} width={IconSize} height={IconSize}/>
           ),
         }}
       />

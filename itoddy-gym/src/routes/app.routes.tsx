@@ -1,7 +1,7 @@
 import {
-  createMaterialBottomTabNavigator,
-  MaterialBottomTabNavigationProp,
-} from "@react-navigation/material-bottom-tabs";
+  createBottomTabNavigator,
+  BottomTabNavigationProp,
+} from "@react-navigation/bottom-tabs";
 
 import { Home } from "@screens/Home";
 import { History } from "@screens/History";
@@ -12,6 +12,7 @@ import HomeSvg from "@assets/home.svg";
 import HistorySvg from "@assets/history.svg";
 import ProfileSvg from "@assets/profile.svg";
 import { useTheme } from "native-base";
+import { Platform } from "react-native";
 
 type AppRoutes = {
   home: undefined;
@@ -20,10 +21,9 @@ type AppRoutes = {
   exercise: undefined;
 };
 
-export type AppNavigatorRoutesProps =
-  MaterialBottomTabNavigationProp<AppRoutes>;
+export type AppNavigatorRoutesProps = BottomTabNavigationProp<AppRoutes>;
 
-const { Navigator, Screen } = createMaterialBottomTabNavigator<AppRoutes>();
+const { Navigator, Screen } = createBottomTabNavigator<AppRoutes>();
 
 export function AppRoutes() {
   const { sizes, colors } = useTheme();
@@ -32,20 +32,26 @@ export function AppRoutes() {
 
   return (
     <Navigator
-      labeled={false}
-      barStyle={{
-        backgroundColor: colors.gray[700],
+      screenOptions={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: colors.yellow[500],
+        tabBarInactiveTintColor: colors.gray[200],
+        tabBarStyle: {
+          backgroundColor: colors.gray[600],
+          borderTopWidth: 0,
+          height: Platform.OS === "android" ? "auto" : 96,
+          paddingBottom: sizes[10],
+          paddingTop: sizes[6],
+        },
       }}
-      shifting={false}
-      activeColor={colors.yellow[700]}
-      inactiveColor={colors.gray[200]}
     >
       <Screen
         name="home"
         component={Home}
         options={{
           tabBarIcon: ({ color }) => (
-            <HomeSvg fill={color} width={IconSize} height={IconSize}/>
+            <HomeSvg fill={color} width={IconSize} height={IconSize} />
           ),
         }}
       />
@@ -70,7 +76,11 @@ export function AppRoutes() {
         }}
       />
 
-      <Screen name="exercise" component={Exercise} />
+      <Screen
+        name="exercise"
+        component={Exercise}
+        options={{ tabBarButton: () => null }}
+      />
     </Navigator>
   );
 }

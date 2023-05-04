@@ -9,6 +9,12 @@ import { useState } from "react";
 export function Home() {
   const [groupSelected, setGroupSelected] = useState("costa");
   const [groups, setGroups] = useState(["Costas", "Ombro", "Perna", "Bíceps"]);
+  const [exercises, setExercises] = useState([
+    "Puxada Frontal",
+    "Remada Curva",
+    "Remada Unilateral",
+    "Supino",
+  ]);
 
   return (
     <VStack flex={1}>
@@ -21,7 +27,7 @@ export function Home() {
           return (
             <Group
               name={item}
-              isActive={groupSelected === item}
+              isActive={groupSelected.toLocaleUpperCase() === item.toLocaleUpperCase()}
               onPress={() => setGroupSelected(item)}
             />
           );
@@ -39,12 +45,17 @@ export function Home() {
             Exercícios
           </Heading>
           <Text color="gray.200" fontSize="sm">
-            4
+            {exercises.length}
           </Text>
         </HStack>
 
-        <ExerciseCard />
-        <ExerciseCard />
+        <FlatList
+          data={exercises}
+          keyExtractor={(item) => item}
+          renderItem={({ item }) => <ExerciseCard />}
+          showsVerticalScrollIndicator={false}
+          _contentContainerStyle={{ paddingBottom: 20 }}
+        />
       </VStack>
     </VStack>
   );

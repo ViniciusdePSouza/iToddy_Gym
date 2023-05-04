@@ -26,7 +26,7 @@ export function Button({ variant = 'solid', title, ...rest }: ButtonProps) {
         }}
       >
         <Text
-          color={variant === "outline" ? "yellow.500" : "white"}
+          color={variant === "outline" ? "yellow.500" : "black"}
           fontSize="sm"
           fontFamily="heading"
         >

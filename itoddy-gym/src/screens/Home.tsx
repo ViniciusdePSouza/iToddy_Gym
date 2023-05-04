@@ -5,6 +5,9 @@ import { Group } from "../Components/Group";
 import { ExerciseCard } from "../Components/ExerciseCard";
 
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
 export function Home() {
   const [groupSelected, setGroupSelected] = useState("costa");
@@ -15,6 +18,12 @@ export function Home() {
     "Remada Unilateral",
     "Supino",
   ]);
+
+  const navigation = useNavigation<AppNavigatorRoutesProps>();
+
+  function handleOpenExerciseDetails() {
+    navigation.navigate('exercise')
+  }
 
   return (
     <VStack flex={1}>
@@ -27,7 +36,9 @@ export function Home() {
           return (
             <Group
               name={item}
-              isActive={groupSelected.toLocaleUpperCase() === item.toLocaleUpperCase()}
+              isActive={
+                groupSelected.toLocaleUpperCase() === item.toLocaleUpperCase()
+              }
               onPress={() => setGroupSelected(item)}
             />
           );
@@ -52,7 +63,9 @@ export function Home() {
         <FlatList
           data={exercises}
           keyExtractor={(item) => item}
-          renderItem={({ item }) => <ExerciseCard />}
+          renderItem={({ item }) => (
+            <ExerciseCard onPress={handleOpenExerciseDetails} />
+          )}
           showsVerticalScrollIndicator={false}
           _contentContainerStyle={{ paddingBottom: 20 }}
         />

@@ -13,7 +13,7 @@ import * as FileSystem from "expo-file-system";
 
 import { useState } from "react";
 
-import { Alert, TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 
 import { ScreenHeader } from "../Components/ScreenHeader";
 import { UserPhoto } from "../Components/UserPhoto";
@@ -46,7 +46,7 @@ export function Profile() {
       if (userPhotoSelected.assets[0].uri) {
         const photoInfo = await FileSystem.getInfoAsync(userPhotoSelected.assets[0].uri)
         
-        if(photoInfo.size && (photoInfo.size / 1024 / 1024) > 5) {
+        if(photoInfo.exists && (photoInfo.size / 1024 / 1024) > 5) {
           return toast.show({
             title: 'Imagem muito grande, selecione uma menor',
             placement: 'top',
@@ -102,7 +102,7 @@ export function Profile() {
         </Center>
 
         <VStack px={10} mt={12} mb={9}>
-          <Heading color="gray.200" fontFamily='heading' fontSize="md" mb={2}>
+          <Heading color="gray.200"  fontSize="md" mb={2}>
             Alterar Senha
           </Heading>
 

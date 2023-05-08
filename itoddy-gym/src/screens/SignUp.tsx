@@ -1,4 +1,4 @@
-import { VStack, Image, Center, Text, Heading, ScrollView } from "native-base";
+import { VStack, Image, Center, Text, Heading, ScrollView, useToast } from "native-base";
 
 import BackgroundImg from "@assets/background.png";
 
@@ -13,6 +13,10 @@ import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import * as yup from "yup";
+
+import { api } from "@services/api";
+
+import { AppError } from "@utils/AppError";
 
 type FormDataSchema = {
   name: string;
@@ -32,7 +36,7 @@ const signUpSchema = yup.object({
     .string()
     .required("Confirme a senha")
     .oneOf(
-      [yup.ref('password')],
+      [yup.ref("password")],
       "A senha de confirmação não bate com a senha informada"
     ),
 });
@@ -46,14 +50,38 @@ export function SignUp() {
     resolver: yupResolver(signUpSchema),
   });
 
+  const toast = useToast()
+
   const navigation = useNavigation();
 
   function handleGoBack() {
     navigation.goBack();
   }
 
-  function handleSignUp(data: FormDataSchema) {
-    console.log(data);
+  async function handleSignUp({
+    email,
+    name,
+    password,
+    passwordConfirmed,
+  }: FormDataSchema) {
+    const newUser = {
+      name,
+      email,
+      password,
+    };
+
+    try {
+      const response = await api.post("/users", newUser);
+    } catch(error){
+      const isAppError = error instanceof AppError
+      const title = isAppError ? error.message : 'Não foi possível criar uma conta, tente novamente mais tarde'
+
+      toast.show({
+        title,
+        placement: 'top',
+        bgColor: 'red.500' 
+      })
+    }
   }
 
   return (

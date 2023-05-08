@@ -1,4 +1,12 @@
-import { VStack, Image, Center, Text, Heading, ScrollView } from "native-base";
+import {
+  VStack,
+  Image,
+  Center,
+  Text,
+  Heading,
+  ScrollView,
+  useToast,
+} from "native-base";
 
 import BackgroundImg from "@assets/background.png";
 
@@ -12,6 +20,9 @@ import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
 import * as yup from "yup";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useAuth } from "@hooks/useAuth";
+import { AppError } from "@utils/AppError";
+import { useState } from "react";
 
 type FormDataProps = {
   email: string;
@@ -20,10 +31,15 @@ type FormDataProps = {
 
 const signInSchema = yup.object({
   email: yup.string().required("Insira o Email").email(),
-  password: yup.string().required("Insira a senha").min(6, "A senha deve ter no mínimo 6 caracteres"),
+  password: yup
+    .string()
+    .required("Insira a senha")
+    .min(6, "A senha deve ter no mínimo 6 caracteres"),
 });
 
 export function SignIn() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const {
     control,
     handleSubmit,
@@ -32,14 +48,36 @@ export function SignIn() {
     resolver: yupResolver(signInSchema),
   });
 
+  const toast = useToast();
+
+  const { signIn } = useAuth();
+
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
 
   function handleNewAccount() {
     navigation.navigate("signUp");
   }
 
-  function handleSignIn(data: FormDataProps) {
-    console.log(data);
+  async function handleSignIn({ email, password }: FormDataProps) {
+    try {
+      setIsLoading(true);
+      await signIn(email, password);
+      
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+
+      const title = isAppError
+        ? error.message
+        : "Não foi possível entrar, tenta novamente mais tarde";
+
+      setIsLoading(false);
+
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+    }
   }
 
   return (
@@ -99,9 +137,8 @@ export function SignIn() {
               />
             )}
           />
-
         </Center>
-        <Button title="Acessar" onPress={handleSubmit(handleSignIn)}/>
+        <Button title="Acessar" onPress={handleSubmit(handleSignIn)} isLoading={isLoading}/>
 
         <Center mt={32} mb={5}>
           <Text color="gray.100" fontSize="sm" fontFamily="body">

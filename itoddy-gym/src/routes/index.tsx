@@ -7,14 +7,15 @@ import { Box, useTheme } from "native-base";
 
 import { AuthContext } from "@contexts/AuthContext";
 import { useContext } from "react";
+import { useAuth } from "@hooks/useAuth";
 
 export function Routes() {
   const { colors } = useTheme();
+  const { user } = useAuth()
+
   const theme = DefaultTheme;
   theme.colors.background = colors.gray[700];
 
-  const contextData = useContext(AuthContext);
-  
   return (
     <Box flex={1} bg="gray.700">
       <NavigationContainer theme={theme}>

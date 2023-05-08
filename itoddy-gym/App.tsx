@@ -12,19 +12,30 @@ import { Loading } from "./src/Components/Loading";
 
 import { THEME } from "./src/theme";
 import { Routes } from "@routes/index";
+import { AuthContext } from "@contexts/AuthContext";
 
 export default function App() {
-  const [ fontsLoaded ] = useFonts({ Roboto_400Regular, Roboto_700Bold });
+  const [fontsLoaded] = useFonts({ Roboto_400Regular, Roboto_700Bold });
 
   return (
     <NativeBaseProvider theme={THEME}>
-        <StatusBar
-          barStyle="light-content"
-          backgroundColor="transparent"
-          translucent
-        />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
 
-        {fontsLoaded ? <Routes /> : <Loading/>}
+      <AuthContext.Provider
+        value={{user: {
+          id: '1',
+          name: "Vini",
+          email: "vini@gmail.com",
+          avatar:'vini.png'
+        }
+        }}
+      >
+        {fontsLoaded ? <Routes /> : <Loading />}
+      </AuthContext.Provider>
     </NativeBaseProvider>
   );
 }

@@ -1,4 +1,12 @@
-import { VStack, Image, Center, Text, Heading, ScrollView, useToast } from "native-base";
+import {
+  VStack,
+  Image,
+  Center,
+  Text,
+  Heading,
+  ScrollView,
+  useToast,
+} from "native-base";
 
 import BackgroundImg from "@assets/background.png";
 
@@ -17,6 +25,8 @@ import * as yup from "yup";
 import { api } from "@services/api";
 
 import { AppError } from "@utils/AppError";
+import { useState } from "react";
+import { useAuth } from "@hooks/useAuth";
 
 type FormDataSchema = {
   name: string;
@@ -42,6 +52,10 @@ const signUpSchema = yup.object({
 });
 
 export function SignUp() {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { signIn } = useAuth();
+
   const {
     control,
     handleSubmit,
@@ -50,7 +64,7 @@ export function SignUp() {
     resolver: yupResolver(signUpSchema),
   });
 
-  const toast = useToast()
+  const toast = useToast();
 
   const navigation = useNavigation();
 
@@ -71,16 +85,23 @@ export function SignUp() {
     };
 
     try {
-      const response = await api.post("/users", newUser);
-    } catch(error){
-      const isAppError = error instanceof AppError
-      const title = isAppError ? error.message : 'Não foi possível criar uma conta, tente novamente mais tarde'
+      setIsLoading(true);
+
+      await api.post("/users", newUser);
+      await signIn(email, password);
+    } catch (error) {
+      setIsLoading(false);
+
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível criar uma conta, tente novamente mais tarde";
 
       toast.show({
         title,
-        placement: 'top',
-        bgColor: 'red.500' 
-      })
+        placement: "top",
+        bgColor: "red.500",
+      });
     }
   }
 
@@ -173,7 +194,11 @@ export function SignUp() {
             )}
           />
         </Center>
-        <Button title="Criar e acessar" onPress={handleSubmit(handleSignUp)} />
+        <Button
+          title="Criar e acessar"
+          onPress={handleSubmit(handleSignUp)}
+          isLoading={isLoading}
+        />
 
         <Button
           title="Voltar para o login"

@@ -14,3 +14,7 @@ export async function getStorageUser(){
 
     return user
 }
+
+export async function storageUserRemove(){
+    await AsyncStorage.removeItem(USER_STORAGE)
+}

@@ -24,8 +24,11 @@ import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
+import { useAuth } from "@hooks/useAuth";
+
 type FormDataProps = {
   name: string;
+  email:string
   oldPassword: string;
   newPassword: string;
   confirmationNewPassword: string;
@@ -33,6 +36,7 @@ type FormDataProps = {
 
 const profileFormSchema = yup.object({
   name: yup.string().required("Insira o nome que deseja usar no app"),
+  email: yup.string().required("Insira o email que deseja usar no app").email(),
   oldPassword: yup
     .string()
     .required("Insira a senha antiga")
@@ -55,6 +59,9 @@ export function Profile() {
   const [userPhoto, setUserPhoto] = useState(
     "https://github.com/ViniciusdePSouza.png"
   );
+
+  const { user } = useAuth()
+
   const {
     control,
     handleSubmit,
@@ -62,11 +69,13 @@ export function Profile() {
   } = useForm<FormDataProps>({
     resolver: yupResolver(profileFormSchema),
     defaultValues: {
-      name: "Vinícius de Paula",
+      name: user.name,
+      email: user.email
     },
   });
 
-  function handleProfileInfoUpdate(data: FormDataProps) {
+
+  async function handleProfileInfoUpdate(data: FormDataProps) {
     console.log(data)
   }
 
@@ -159,7 +168,19 @@ export function Profile() {
             )}
           />
 
-          <Input placeholder="vinitoddy@icloud.com" bg="gray.600" isDisabled />
+<Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                placeholder="vinitoddy@icloud.com"
+                bg="gray.600"
+                onChangeText={onChange}
+                value={value}
+                isDisabled
+              />
+            )}
+          />
         </Center>
 
         <VStack px={10} mt={12} mb={9}>
@@ -178,7 +199,6 @@ export function Profile() {
                 onChangeText={onChange}
                 onBlur={onBlur}
                 value={value}
-                errorMessage={errors.oldPassword?.message}
               />
             )}
           />

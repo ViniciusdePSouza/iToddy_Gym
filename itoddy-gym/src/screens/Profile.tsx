@@ -21,10 +21,14 @@ import { Input } from "../Components/Input";
 import { Button } from "../Components/Button";
 
 import { Controller, useForm } from "react-hook-form";
+
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 import { useAuth } from "@hooks/useAuth";
+
+import { api } from "@services/api";
+import { AppError } from "@utils/AppError";
 
 type FormDataProps = {
   name: string;
@@ -37,19 +41,13 @@ type FormDataProps = {
 const profileFormSchema = yup.object({
   name: yup.string().required("Insira o nome que deseja usar no app"),
   email: yup.string().required("Insira o email que deseja usar no app").email(),
-  oldPassword: yup
-    .string()
-    .required("Insira a senha antiga")
-    .min(6, "A senha deve ter no mínimo 6 caracteres"),
   newPassword: yup
     .string()
-    .required("Insira a nova senha")
     .min(6, "A senha deve ter no mínimo 6 caracteres")
     .nullable()
     .transform((value) => (!!value ? value : null)),
   confirmationNewPassword: yup
     .string()
-    .required("Confirme a senha")
     .oneOf(
       [yup.ref("newPassword")],
       "A senha de confirmação não bate com a senha informada"
@@ -59,7 +57,10 @@ const profileFormSchema = yup.object({
     .when("newPassword", {
       is: (Field: any) => Field,
       then: (schema) =>
-        schema.nullable().required("A confirmação da senha é necessária").transform((value) => (!!value ? value : null)),
+        schema
+          .nullable()
+          .required("A confirmação da senha é necessária")
+          .transform((value) => (!!value ? value : null)),
     }),
 });
 
@@ -68,8 +69,13 @@ export function Profile() {
   const [userPhoto, setUserPhoto] = useState(
     "https://github.com/ViniciusdePSouza.png"
   );
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const { user } = useAuth();
+  const { user, updateUserProfile } = useAuth();
+
+  const PHOTO_SIZE = 33;
+
+  const toast = useToast();
 
   const {
     control,
@@ -84,12 +90,42 @@ export function Profile() {
   });
 
   async function handleProfileInfoUpdate(data: FormDataProps) {
-    console.log(data);
+    try {
+      const userUpdated = {
+        name: data.name,
+        password: data.newPassword,
+        old_password: data.oldPassword,
+      };
+
+      const userUpdatedInContext = user;
+
+      userUpdatedInContext.name = userUpdated.name;
+
+      setIsUpdating(true);
+
+      await api.put("/users", userUpdated);
+      toast.show({
+        title: "Perfil atualizado com sucesso",
+        placement: "top",
+        bgColor: "yellow.700",
+      });
+
+      await updateUserProfile(userUpdatedInContext);
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível atualizar o perfi, tente novamente mais tarde";
+
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
   }
-
-  const PHOTO_SIZE = 33;
-
-  const toast = useToast();
 
   async function handleSelectUserPhoto() {
     setIsPhotoLoading(true);
@@ -245,6 +281,7 @@ export function Profile() {
             title="Atualizar"
             mb={4}
             onPress={handleSubmit(handleProfileInfoUpdate)}
+            isLoading={isUpdating}
           />
         </VStack>
       </ScrollView>

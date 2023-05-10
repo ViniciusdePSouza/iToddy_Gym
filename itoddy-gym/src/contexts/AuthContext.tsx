@@ -37,18 +37,19 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
 
   async function updateUserAndToken(userData: UserDTO, token: string) {
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-    await saveUserAndTokenOnStorage(userData, token);
-
     setUser(userData);
   }
 
-  async function saveUserAndTokenOnStorage(userData: UserDTO, token: string) {
+  async function saveUserAndTokenOnStorage(
+    userData: UserDTO,
+    token: string,
+    refresh_token: string
+  ) {
     try {
       setIsLoadingUserData(true);
 
       await storageUserSave(userData);
-      await saveStorageAuthToken(token);
+      await saveStorageAuthToken({ token, refresh_token });
     } catch (error) {
       throw error;
     } finally {
@@ -60,10 +61,14 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
     try {
       const { data } = await api.post("/sessions", { email, password });
 
-      if (data.user && data.token) {
+      if (data.user && data.token && data.refresh_token) {
         setIsLoadingUserData(true);
 
-        await saveUserAndTokenOnStorage(data.user, data.token);
+        await saveUserAndTokenOnStorage(
+          data.user,
+          data.token,
+          data.refresh_token
+        );
 
         updateUserAndToken(data.user, data.token);
       }
@@ -104,7 +109,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
       setIsLoadingUserData(true);
 
       const userLoggedIn = await getStorageUser();
-      const token = await getStorageAuthToken();
+      const { token } = await getStorageAuthToken();
 
       if (userLoggedIn && token) {
         updateUserAndToken(userLoggedIn, token);
@@ -120,8 +125,18 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
     loadUserData();
   }, []);
 
+  useEffect(() => {
+    const subscribe = api.registerInterceptTokenManager(signOut);
+
+    return () => {
+      subscribe();
+    };
+  }, [signOut]);
+
   return (
-    <AuthContext.Provider value={{ user, signIn, isLoadingUserData, signOut, updateUserProfile }}>
+    <AuthContext.Provider
+      value={{ user, signIn, isLoadingUserData, signOut, updateUserProfile }}
+    >
       {children}
     </AuthContext.Provider>
   );

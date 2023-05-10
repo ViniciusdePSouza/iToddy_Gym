@@ -185,8 +185,6 @@ export function Profile() {
           placement: "top",
           bgColor: "yellow.700",
         });
-
-        setUserPhoto(userPhotoSelected.assets[0].uri);
       }
     } catch (err) {
       console.log(err);

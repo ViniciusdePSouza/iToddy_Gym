@@ -28,7 +28,7 @@ import { useAuth } from "@hooks/useAuth";
 
 type FormDataProps = {
   name: string;
-  email:string
+  email: string;
   oldPassword: string;
   newPassword: string;
   confirmationNewPassword: string;
@@ -44,14 +44,23 @@ const profileFormSchema = yup.object({
   newPassword: yup
     .string()
     .required("Insira a nova senha")
-    .min(6, "A senha deve ter no mínimo 6 caracteres"),
+    .min(6, "A senha deve ter no mínimo 6 caracteres")
+    .nullable()
+    .transform((value) => (!!value ? value : null)),
   confirmationNewPassword: yup
     .string()
     .required("Confirme a senha")
     .oneOf(
       [yup.ref("newPassword")],
       "A senha de confirmação não bate com a senha informada"
-    ),
+    )
+    .nullable()
+    .transform((value) => (!!value ? value : null))
+    .when("newPassword", {
+      is: (Field: any) => Field,
+      then: (schema) =>
+        schema.nullable().required("A confirmação da senha é necessária").transform((value) => (!!value ? value : null)),
+    }),
 });
 
 export function Profile() {
@@ -60,7 +69,7 @@ export function Profile() {
     "https://github.com/ViniciusdePSouza.png"
   );
 
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   const {
     control,
@@ -70,13 +79,12 @@ export function Profile() {
     resolver: yupResolver(profileFormSchema),
     defaultValues: {
       name: user.name,
-      email: user.email
+      email: user.email,
     },
   });
 
-
   async function handleProfileInfoUpdate(data: FormDataProps) {
-    console.log(data)
+    console.log(data);
   }
 
   const PHOTO_SIZE = 33;
@@ -168,7 +176,7 @@ export function Profile() {
             )}
           />
 
-<Controller
+          <Controller
             control={control}
             name="email"
             render={({ field: { onChange, onBlur, value } }) => (
@@ -233,7 +241,11 @@ export function Profile() {
             )}
           />
 
-          <Button title="Atualizar" mb={4} onPress={handleSubmit(handleProfileInfoUpdate)}/>
+          <Button
+            title="Atualizar"
+            mb={4}
+            onPress={handleSubmit(handleProfileInfoUpdate)}
+          />
         </VStack>
       </ScrollView>
     </VStack>
